@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEVEL5 ID AutoRegister WebLink</title>
+    <style>
+        /* テクノロジー・サイバーパンク風デザイン */
+        :root {
+            --bg-color: #050505;
+            --panel-bg: #0a0f14;
+            --text-main: #e0f2f1;
+            --accent-cyan: #00bcd4;
+            --accent-green: #00ff41;
+            --accent-warn: #ffab00;
+            --accent-danger: #ff1744;
+            --border-color: #1a2634;
+            --font-tech: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-tech);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            box-sizing: border-box;
+            background-image: 
+                linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-rows: auto auto 1fr;
+            gap: 15px;
+        }
+
+        /* ヘッダー */
+        header {
+            border-bottom: 2px solid var(--accent-cyan);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            text-shadow: 0 0 5px var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        /* パネル共通 */
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 10px; height: 10px;
+            border-top: 2px solid var(--accent-cyan);
+            border-left: 2px solid var(--accent-cyan);
+        }
+        .panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 10px; height: 10px;
+            border-bottom: 2px solid var(--accent-cyan);
+            border-right: 2px solid var(--accent-cyan);
+        }
+
+        .panel-title {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background-color: var(--bg-color);
+            padding: 0 10px;
+            color: var(--accent-cyan);
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* 設定フォーム */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-size: 0.8rem;
+            color: #8899a6;
+        }
+        input[type="number"], input[type="text"], select {
+            background: #000;
+            border: 1px solid var(--border-color);
+            color: var(--accent-cyan);
+            padding: 8px;
+            font-family: var(--font-tech);
+            outline: none;
+        }
+        input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 5px var(--accent-cyan);
+        }
+
+        /* ボタングループ */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-tech);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+        .btn-start {
+            background: rgba(0, 188, 212, 0.2);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        .btn-start:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-cyan);
+        }
+        .btn-stop {
+            background: rgba(255, 23, 68, 0.2);
+            border: 1px solid var(--accent-danger);
+            color: var(--accent-danger);
+        }
+        .btn-stop:hover {
+            background: var(--accent-danger);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-danger);
+        }
+
+        /* ログエリア */
+        .log-area {
+            height: 100%;
+            min-height: 300px;
+            background: #000;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            overflow-y: scroll;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        /* スクロールバー装飾 */
+        .log-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        .log-area::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+        }
+
+        .log-line { margin-bottom: 4px; }
+        .log-time { color: #555; margin-right: 10px; }
+        .log-info { color: var(--text-main); }
+        .log-ok { color: var(--accent-green); }
+        .log-err { color: var(--accent-danger); }
+        .log-warn { color: var(--accent-warn); }
+        .log-run { color: var(--accent-cyan); animation: blink 1.5s infinite; }
+
+        @keyframes blink { 50% { opacity: 0.5; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>LEVEL5 ID AUTO_REG_SYS</h1>
+            <div class="status-badge">SYSTEM: READY</div>
+        </header>
+
+        <div class="panel">
+            <span class="panel-title">CONFIGURATION</span>
+            <div class="controls">
+                <div class="control-group">
+                    <label>TARGET COUNT</label>
+                    <input type="number" id="count" value="3" min="1">
+                </div>
+                <div class="control-group">
+                    <label>PASSWORD (Aa0-9)</label>
+                    <input type="text" id="password" value="Aa123456">
+                </div>
+                <div class="control-group">
+                    <label>MODE</label>
+                    <select id="headless">
+                        <option value="true">HEADLESS (Hide Browser)</option>
+                        <option value="false">VISIBLE (Show Browser)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>BACKEND API URL</label>
+                    <input type="text" id="apiUrl" value="http://localhost:8000">
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn-start" onclick="startProcess()">▶ INITIALIZE</button>
+                <button class="btn-stop" onclick="stopProcess()">■ ABORT</button>
+            </div>
+        </div>
+
+        <div class="panel" style="flex: 1; display: flex; flex-direction: column;">
+            <span class="panel-title">EXECUTION LOG</span>
+            <div id="logConsole" class="log-area">
+                <div class="log-line"><span class="log-time">[SYSTEM]</span> Ready to connect.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ログを追加する関数
+        function addLog(msg, level = "INFO") {
+            const consoleDiv = document.getElementById('logConsole');
+            const line = document.createElement('div');
+            line.className = 'log-line';
+            
+            const time = new Date().toLocaleTimeString();
+            let colorClass = 'log-info';
+            if (level === 'OK') colorClass = 'log-ok';
+            if (level === 'ERR') colorClass = 'log-err';
+            if (level === 'WARN') colorClass = 'log-warn';
+            if (level === 'RUN') colorClass = 'log-run';
+
+            line.innerHTML = `<span class="log-time">[${time}]</span><span class="${colorClass}">${msg}</span>`;
+            consoleDiv.appendChild(line);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        // バックエンドAPIへリクエストを送る
+        async function startProcess() {
+            const apiUrl = document.getElementById('apiUrl').value.replace(/\/$/, "");
+            const count = document.getElementById('count').value;
+            const password = document.getElementById('password').value;
+            const headless = document.getElementById('headless').value === "true";
+
+            addLog(`Connecting to Backend: ${apiUrl}...`, "RUN");
+
+            try {
+                // 実行開始リクエスト
+                const response = await fetch(`${apiUrl}/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count: parseInt(count), password, headless })
+                });
+
+                if (!response.ok) throw new Error("Backend connection failed");
+                
+                const data = await response.json();
+                addLog(data.message, "OK");
+
+                // ログのポーリング開始
+                pollLogs(apiUrl);
+
+            } catch (e) {
+                addLog(`ERROR: ${e.message}`, "ERR");
+                addLog("Check if server.py is running and URL is correct.", "WARN");
+            }
+        }
+
+        async function stopProcess() {
+            const apiUrl = document.getElementById('apiUrl').value.replace(/\/$/, "");
+            try {
+                await fetch(`${apiUrl}/stop`, { method: 'POST' });
+                addLog("Stop signal sent.", "WARN");
+            } catch (e) {
+                addLog("Failed to send stop signal.", "ERR");
+            }
+        }
+
+        // 定期的にログを取得する
+        let pollingInterval = null;
+        function pollLogs(apiUrl) {
+            if (pollingInterval) clearInterval(pollingInterval);
+            
+            pollingInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${apiUrl}/logs`);
+                    const logs = await res.json();
+                    if (logs && logs.lines) {
+                        logs.lines.forEach(l => {
+                            // 既に表示済みのログ制御などは簡易実装のため省略
+                            // 実際はID管理などで重複排除すると良い
+                            addLog(l.msg, l.level);
+                        });
+                    }
+                } catch (e) {
+                    // エラーは無視（接続切れなど）
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
